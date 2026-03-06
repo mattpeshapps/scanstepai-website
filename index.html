@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScanStep AI - Photos to CAD in Minutes</title>
+    <meta name="description"
+        content="Turn smartphone photos into precision engineering CAD models instantly with ScanStep AI.">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Abstract Background Gradients */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: var(--bg-color);
+        }
+
+        .blob-1,
+        .blob-2 {
+            position: absolute;
+            filter: blur(120px);
+            border-radius: 50%;
+            animation: float 20s infinite alternate ease-in-out;
+            opacity: 0.6;
+        }
+
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--accent-primary);
+            top: -200px;
+            left: -200px;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent-secondary);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(100px, 50px) scale(1.1);
+            }
+        }
+
+        /* Nav */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 5%;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Hero */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 0 1rem;
+            padding-top: 5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+            max-width: 900px;
+            background: linear-gradient(to right, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+
+        /* Workflow Section (Glassmorphism Cards) */
+        .workflow {
+            padding: 5rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 4rem;
+            font-weight: 800;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .step-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .img-container {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .step-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .step-card:hover .step-img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        .step-number {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-primary);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-content p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-top: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            margin-top: 5rem;
+        }
+
+        footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-up {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="blob-1"></div>
+        <div class="blob-2"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">SCANSTEP AI</div>
+        <a href="#download" class="cta-btn">Get the App</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1 class="animate-up">Reverse Engineer the Physical World</h1>
+        <p class="animate-up" style="animation-delay: 0.2s;">
+            Transform everyday smartphone photos into production-ready, precision STEP files in minutes. Powered by
+            state-of-the-art vision models.
+        </p>
+        <div class="animate-up" style="animation-delay: 0.4s;">
+            <a href="#workflow" class="cta-btn" style="padding: 1rem 3rem; font-size: 1.1rem;">See How It Works</a>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section id="workflow" class="workflow">
+        <h2 class="section-title">From Physical Part to Production</h2>
+
+        <div class="steps-container">
+            <!-- Step 1 -->
+            <div class="step-card">
+                <div class="img-container">
+                    <img src="assets/scanning.png" alt="App scanning a gear on a workbench" class="step-img">
+                </div>
+                <div class="card-content">
+                    <div class="step-number">Step 01</div>
+                    <h3>Snap & Describe</h3>
+                    <p>Place your part next to a ruler for scale. Snap a few photos from different angles using the
+                        ScanStep AI iOS app and add a brief description of the material and requirements.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card">
+                <div class="img-container">
+                    <!-- A stylized placeholder for the software processing phase -->
+                    <div class="step-img"
+                        style="background: linear-gradient(135deg, #1e293b, #0f172a); display:flex; align-items:center; justify-content:center; color: #3b82f6; font-size: 4rem;">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                            </path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="step-number">Step 02</div>
+                    <h3>AI Generation</h3>
+                    <p>Our cloud pipeline analyzes your photos using Gemini Vision and generates a flawless, editable
+                        B-Rep CAD model (STEP format) via Zoo.dev's modeling engine.</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card">
+                <div class="img-container">
+                    <img src="assets/printing.png" alt="3D printer printing the scanned gear" class="step-img">
+                </div>
+                <div class="card-content">
+                    <div class="step-number">Step 03</div>
+                    <h3>Manufacture</h3>
+                    <p>Export your STEP file directly to Fusion 360, SolidWorks, or throw it straight into your slicer.
+                        Go from broken part to a 3D printed replacement on the same day.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 ScanStep AI. All rights reserved.</p>
+        <div style="margin-top: 1rem;">
+            <a href="terms.html">Terms of Service</a> |
+            <a href="index.html">Privacy Policy</a>
+        </div>
+    </footer>
+
+</body>
+
+</html>
